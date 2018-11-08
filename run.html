@@ -5,18 +5,98 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
 	<link rel="stylesheet" href="assets/css/style.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 	<script>
   angular.module('app', [])
-    .controller('mainController', ['$scope', '$http', function($scope, $http) {
+    .controller('mainController', ['$scope',  function($scope) {
         $scope.title = 'Hello World';
 	  
-    }]);
+	    $scope.box = {element:'image',width:130, height:100,pos_x:90,pos_y:100};
+		
+	 
+		$scope.offset = function() {
+			var rec = document.getElementById('mainDrag').getBoundingClientRect(), bodyElt = document.body;
+			return {
+			  top: rec.top + bodyElt .scrollTop,
+			  left: rec.left + bodyElt .scrollLeft
+			}
+		};
+    }])	
+	.directive('resizable', [function () {
+		return {
+        restrict: 'A',
+        
+			link: function postLink(scope, elem, attrs) {
+				elem.resizable({ handles: " n, e, s, w, ne, se, sw, nw" });
+				elem.on('resizestop', function (evt, ui) {
+					//if (scope.callback) { scope.callback(); }
+					console.log('resize stop');
+					
+				
+				});
+				elem.on('resizestart',function(evt,ui) {
+					console.log('resize start');
+				});
+				elem.on('resizecreate',function(evt,ui) {
+				   console.log('resize create'); 
+				});
+				elem.on('resize',function(evt,ui) {
+				   console.log('reisze'); 
+				});
+				elem.on('mouseover',function() {
+				   console.log('mouseover'); 
+					elem.addClass('enter');
+				});
+				elem.on('mouseleave',function() {
+				   console.log('mouseleft'); 
+					elem.removeClass('enter');
+				});
+				
+				elem.on('dblclick',function(el) {
+					console.log(el);
+				});
+
+				elem.on('dragstop',function(event,ui) {
+					console.log('####DRAG stop####');
+					console.log(ui.position);
+					console.log(ui.offset);
+					var posOff = scope.offset(),
+					newPosX = ui.offset.left - posOff.left,
+					newPosY = ui.offset.top - posOff.top
+					
+					console.log(newPosY);
+					console.log(newPosX);
+				});
+				elem.draggable({containment: "#mainDrag"});
+						
+			}
+		};
+	}]);
 </script>
+<style>
+div[resizable] {
+    border: 1px solid Black;
+    width: 150px;
+    height:100px;
+}
+
+.enter {
+    background-color:#efefef;
+}
+#mainDrag { border:#00ffff 1px solid; width:600px; height:600px;}
+</style>
 </head>	
 <body>
 	<div id="main" ng-controller="mainController">
-		{{ $scope.title}}
+		{{ title}}
+		 <div id="mainDrag">
+        <div  resizable style="left:{{box.pos_x}}px; top:{{box.pos_y}}px;height:{{box.height}}px;width:{{box.width}}px" >
+        {{box.element}}
+      </div>
+    </div>
 	</div>
 	
 </body>
