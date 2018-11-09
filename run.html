@@ -11,8 +11,7 @@
 	<script>
   angular.module('app', [])
     .controller('mainController', ['$scope',  function($scope) {
-        $scope.title = 'Hello World';
-	      		
+        
 		$scope.leftNavSign = '>';
 				
 		$scope.showLeftNav = true;
@@ -152,6 +151,8 @@
 		  y = event.screenY - startY;
 		  x = event.screenX - startX;		 
 
+		  x = x > 0 ? x : 0;
+		  y = y > 0 ? y : 0;
 		  console.log("x: " + x + " y: " + y)
 		 
 		  container.css({
@@ -297,7 +298,7 @@ div.container {
 		
 		<div id="canvas">
 			 	
-			<div class="container" resizable>				
+			<div class="container" resizable dragable>				
 				<div id="topNav">Top Nav</div>
 				<div id="content">
 					<div id="leftNav" ng-show="showLeftNav"><font color="white">Left Navbar</font></div>
