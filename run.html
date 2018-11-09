@@ -12,8 +12,46 @@
   angular.module('app', [])
     .controller('mainController', ['$scope',  function($scope) {
         $scope.title = 'Hello World';
-	  
-	    $scope.box = {element:'image',width:130, height:100,pos_x:90,pos_y:100};
+	      		
+		$scope.leftNavSign = '>';
+				
+		$scope.showLeftNav = true;
+		
+		$scope.blocks = [
+			{id: 'block1', text: 'Block 1', show: true, height: '25%'},
+			{id: 'block2', text: 'Block 2', show: true, height: '25%'},
+			{id: 'block3', text: 'Block 3', show: true, height: '25%'},
+			{id: 'block4', text: 'Block 4', show: true, height: '25%'}
+		];
+		
+		
+		$scope.toggleLeftNav = function() {
+			if ($scope.showLeftNav){
+				$scope.showLeftNav = false;
+				$scope.leftNavSign = '<';
+			}else {
+				$scope.showLeftNav = true;
+				$scope.leftNavSign = '>';
+			}
+		};
+		
+		$scope.toggleBlock = function(id){		
+			$scope.blocks.forEach(function(block) {
+				if (block.id !== id){
+					block.show = !block.show;										
+				}else {
+					if (block.height === '25%'){
+						block.height = '100%';
+					}else {
+						block.height = '25%';
+					}
+				}				
+            });
+			
+			if ($scope.blocks) {
+			
+			}
+		}
 		
 		$scope.toggle = function(event){
 			if (event) {
@@ -26,7 +64,7 @@
 				document.getElementById(event.toElement.id).style.display = display;
 				
 			}
-		}
+		};
 	 
 		$scope.offset = function() {
 			var rec = document.getElementById('canvas').getBoundingClientRect(), bodyElt = document.body;
@@ -36,23 +74,68 @@
 			}
 		};
     }])		
-	.directive('dragAndResize', function($document) {
+	.directive('resizable', function($document) {
+		return {
+			restrict: 'A',
+			link:function (scope, element, attr) {
+				
+				var container = null; 
+				var dimension = {};
+				var position = {};
+					element.css({
+					  position: 'relative'
+					  // cursor: 'pointer'
+					});
+					
+				element.on('mousedown', function(event) {		  
+				  event.preventDefault();
+				
+				  	
+				  $document.bind('mousemove', mousemove);
+				  $document.bind('mouseup', mouseup); 
+				  container = attr.$$element;
+				  
+				  position.x = event.clientX;
+				  position.y = event.clientY;
+				  dimension.width = element.prop('offsetWidth');
+				  dimension.height = element.prop('offsetHeight');
+				  console.log(container);
+				});	
+				
+				function mousemove(event) {
+				    var deltaWidth = dimension.width - (position.x - event.clientX);
+					var deltaHeight = dimension.height - (position.y - event.clientY);
+					
+					deltaWidth = deltaWidth > 1600?  1600 : deltaWidth;
+					deltaHeight = deltaHeight > 1000? 1000 : deltaHeight;
+					 var newDimensions = {
+						width:  deltaWidth + 'px',
+						height: deltaHeight + 'px'
+					 };
+					 console.log(newDimensions);
+					 container.css(newDimensions);
+				}
+				
+				function mouseup() {
+				  $document.unbind('mousemove', mousemove);
+				  $document.unbind('mouseup', mouseup);
+				}
+			}
+		}
+	})
+	.directive('dragable', function($document) {
 	  return {
 		restrict: 'A',
 		link: function(scope, element, attr) {
 		  var startX = 0,
 		      startY = 0,
-			  startH = 0,
-			  startW = 0,
               x = 0,
-              y = 0,
-			  h = 0,
-			  w = 0; 
+              y = 0; 
 		  var container = null; 
       
 		element.css({
-		  position: 'relative',
-		  cursor: 'pointer'
+		  position: 'relative'
+		  // cursor: 'pointer'
 		});
     
 		element.on('mousedown', function(event) {		  
@@ -69,19 +152,11 @@
 		  y = event.screenY - startY;
 		  x = event.screenX - startX;		 
 
-		  var posOff = offset();
-          x = x - posOff.left;
-          y = y - posOff.top;
-		  
-		  w = 1000 - x;
-		  h = 600 - y;
 		  console.log("x: " + x + " y: " + y)
-		  console.log("width: " + w + " height: " + h)
+		 
 		  container.css({
 			top: y + 'px',
-			left: x + 'px',
-			width: w + 'px',
-			height: h + 'px'
+			left: x + 'px'
 		  });
 
 		}
@@ -107,11 +182,24 @@
 </script>
 <style>
 
+.white-circle-btn { 
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  border: 1px solid black;
+  background-color: white;
+  cursor: 'pointer';  
+  position:absolute;
+  float:right;
+}
 
-div.box {
+
+div.container {
     border: 1px solid Black;
     width: 1000px;
     height:600px;	
+	float:left;
+	position:relative;
 }
 
 #topNav {
@@ -119,27 +207,111 @@ div.box {
 		top: 0px;
 		left:0px;
 		width: 100%;
-		height: 50px;
-		background-color: red;
+		max-width: 1600px;
+		height: 100%;
+		max-height: 15vh;
+		background-color: orange;
 		display: block;
 	}
 
 
-.enter {
-    background-color:#efefef;
+
+	
+#content {
+	background-color: pink;
+	height: 100%;
+	max-height: 85vh;
+	width: 100%;
+	max-width: 1600px;
+	display: flex;
+}	
+
+#mainContent {
+	width: 100vw;
+	position:relative;
+	height: 100%;
+		max-height: 85vh ;	
+		 overflow: hidden;
 }
-#canvas { border:#00ffff 0px solid; width:1600px; height:800;}
+
+#leftNav {
+		border: 1px solid Black;
+		top: 0px;
+		left:0px;
+		width: 20%;
+		max-width: 15vw;
+		height: 100%;
+		max-height: 85vh ;		
+		background-color: black;		
+		display: Block;
+}
+
+#block1 {
+	border: 1px solid Black;
+	
+	height: auto;
+	min-height:25%;
+	line-height: 100%;
+	width: 100%;
+	background-color: lightsalmon;
+	text-align: center;
+}
+
+#block2 {
+	border: 1px solid Black;
+	min-height:25%;
+	height: auto;
+	width: 100%;	
+	background-color: pink;
+	text-align: center;
+}
+
+#block3 {
+	border: 1px solid Black;
+	min-height:25%;
+	height: auto;
+	width: 100%;
+	background-color: slateblue;
+	text-align: center;
+}
+
+#block4 {
+	border: 1px solid Black;
+	min-height:25%;
+	height: auto;
+	width: 100%;	
+	background-color: skyblue;
+	text-align: center;
+}
+	
+.blockText {
+     display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+}
+#canvas { border:#00ffff 0px solid; width:1600px; height:1000;}
 </style>
 </head>	
 <body>
 	<div id="main" ng-controller="mainController">
 		
 		<div id="canvas">
-			 <div drag-and-resize>		
-			<div class="box">
-				<div id="topNav" ng-click="toggle($event)"></div>
+			 	
+			<div class="container" resizable>				
+				<div id="topNav">Top Nav</div>
+				<div id="content">
+					<div id="leftNav" ng-show="showLeftNav"><font color="white">Left Navbar</font></div>
+						<div id="mainContent">
+							<button class="white-circle-btn" ng-click="toggleLeftNav()">
+								{{leftNavSign}}
+							</button>
+						<div ng-repeat="block in blocks" id="{{block.id}}" ng-click="toggleBlock(block.id)" ng-if="block.show" style="height:{{block.height}}">
+							<div class="blockText">{{block.text}}</div>
+						</div>						
+					</div>
+				</div>
 			</div>
-		</div>	
+			
 		</div>
 
 	</div>
