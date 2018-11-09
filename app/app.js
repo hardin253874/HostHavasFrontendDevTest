@@ -3,14 +3,11 @@
 
     var app = angular.module('app', [
         // Angular modules 
-        'ngRoute'         // routing
+        'ngRoute',         // routing		
+		'resizable',
+		'dragable',
+		'mainController'
     ]);
 
-    // Handle routing events
-    app.run( [ '$route', '$rootScope', '$http',, run]);
-
-    function run( $route, $rootScope, $http) {
-
-    }
-
+    
 })();
