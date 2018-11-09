@@ -28,6 +28,10 @@
 		  y = event.screenY - startY;
 		  x = event.screenX - startX;		 
 
+		  
+		  x = x > 0 ? x : 0;
+		  y = y > 0 ? y : 0;
+		  
 		  container.css({
 			top: y + 'px',
 			left: x + 'px'
